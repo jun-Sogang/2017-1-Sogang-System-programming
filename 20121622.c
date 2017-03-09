@@ -5,5 +5,6 @@ int main() {
 		char input[100];
 		sicsim();
 		scanf("%s", input);
+		selector(input);
 	}
 }

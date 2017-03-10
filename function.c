@@ -4,6 +4,7 @@ void sicsim();
 void selector(char input[]);
 void help();
 void dir();
+void quit();
 
 void sicsim() {
 	printf("%s>", "sicsim");
@@ -59,3 +60,12 @@ void dir() {
 //reference
 //https://linux.die.net/man/2/stat
 //http://pubs.opengroup.org/onlinepubs/7908799/xsh/sysstat.h.html
+
+void quit() {
+	printf("   ^       ^        ( BYE ~)\n");
+	printf("  (  x    x )	_____u\n");
+	printf("   (    o    =/3		\n");
+	printf("     ||  ||\n");
+	exit(0);
+}
+

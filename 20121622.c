@@ -5,6 +5,9 @@ int main() {
 		char input[100];
 		sicsim();
 		scanf("%s", input);
+		if (!strcmp(input, "quit") || !strcmp(input, "q")) {
+			quit();
+		}
 		selector(input);
 	}
 }

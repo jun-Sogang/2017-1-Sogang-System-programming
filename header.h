@@ -10,3 +10,4 @@ void sicsim();
 void selector();
 void help();
 void dir();
+void quit();

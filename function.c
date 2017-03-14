@@ -7,7 +7,7 @@ bool dir();
 void quit();
 
 void sicsim() {
-	printf("%s>", "sicsim");
+	printf("%s> ", "sicsim");
 }
 bool selector(char input[]) {
 	if (!strcmp(input, "help") || !strcmp(input, "h")) {
@@ -19,23 +19,23 @@ bool selector(char input[]) {
 	}
 }
 bool help() {
-	printf("h[elp]\n");
-	printf("d[ir]\n");
-	printf("q[uit]\n");
-	printf("hi[story]\n");
-	printf("du[mp] [start, end]\n");
-	printf("e[dit] address, value\n");
-	printf("f[ill] start, end, value\n");
-	printf("reset\n");
-	printf("opcode mnemonic\n");
-	printf("opcodelist\n");
+	printf("\th[elp]\n");
+	printf("\td[ir]\n");
+	printf("\tq[uit]\n");
+	printf("\thi[story]\n");
+	printf("\tdu[mp] [start, end]\n");
+	printf("\te[dit] address, value\n");
+	printf("\tf[ill] start, end, value\n");
+	printf("\treset\n");
+	printf("\topcode mnemonic\n");
+	printf("\topcodelist\n");
 	return TRUE;
 }
 
 bool dir() {
 	DIR *dir;
 	struct dirent *direntp;
-
+	int count = 0;
 	dir = opendir(".");
 	
 	while ((direntp = readdir(dir)) != NULL) {
@@ -56,9 +56,13 @@ bool dir() {
 		} else if (fileMode & S_IXUSR || fileMode & S_IXGRP || fileMode & S_IXOTH) {
 			printf("*");
 		}
-		puts("");
+		printf("\t");
+		if ((++count)%5 == 0) {
+			puts("");
+		}
 	}
 	closedir(dir);
+	puts("");
 	return TRUE;
 }
 //reference

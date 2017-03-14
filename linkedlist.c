@@ -28,7 +28,7 @@ NODE *getNode() {
 void printNodes(linkedList *body) {
 	NODE *temp = body->head;
 	while (temp != NULL) {
-		printf("%d\n", temp->num);
+		printf("\t%d\t", temp->num);
 		printf("%s\n", temp->command);
 		temp = temp->next;
 	}

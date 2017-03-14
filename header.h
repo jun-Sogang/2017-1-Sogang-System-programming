@@ -6,8 +6,13 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+typedef enum { FALSE, TRUE } bool;
+
 void sicsim();
-void selector();
-void help();
-void dir();
+bool selector();
+bool help();
+bool dir();
 void quit();
+void printNodes();
+void insertNode();
+

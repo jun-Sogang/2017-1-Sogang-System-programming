@@ -1,22 +1,24 @@
 #include "header.h"
 
 void sicsim();
-void selector(char input[]);
-void help();
-void dir();
+bool selector(char input[]);
+bool help();
+bool dir();
 void quit();
 
 void sicsim() {
 	printf("%s>", "sicsim");
 }
-void selector(char input[]) {
+bool selector(char input[]) {
 	if (!strcmp(input, "help") || !strcmp(input, "h")) {
-		help();
+		return help();
 	} else if (!strcmp(input, "dir") || !strcmp(input, "d")) {
-		dir();
+		return dir();
+	} else {
+		return FALSE;
 	}
 }
-void help() {
+bool help() {
 	printf("h[elp]\n");
 	printf("d[ir]\n");
 	printf("q[uit]\n");
@@ -27,9 +29,10 @@ void help() {
 	printf("reset\n");
 	printf("opcode mnemonic\n");
 	printf("opcodelist\n");
+	return TRUE;
 }
 
-void dir() {
+bool dir() {
 	DIR *dir;
 	struct dirent *direntp;
 
@@ -56,6 +59,7 @@ void dir() {
 		puts("");
 	}
 	closedir(dir);
+	return TRUE;
 }
 //reference
 //https://linux.die.net/man/2/stat

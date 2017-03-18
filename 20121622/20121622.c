@@ -29,7 +29,7 @@ int main() {
 		} else if (!strcmp(input, "dump")) {
 			dump(&dumpAddress, maxSize, memory);
 			insertNode(history, input);
-		} else if (!strncmp(input, "dump ", 5)) {
+		} else if (!strncmp(input, "dump ", 5) || !strncmp(input, "du ", 3)) {
 			int inputLength = strlen(input);
 			char firstNumber[100];
 			char secondNumber[100];
@@ -41,7 +41,9 @@ int main() {
 			char blank = ' ';
 			char comma = ',';
 			int count = 0;
-			for (int i = 5; i < inputLength; i += 1) {
+			int commandLength = !strncmp(input, "dump ", 5) ? 5 : 3;
+
+			for (int i = commandLength; i < inputLength; i += 1) {
 				if (isFirstNum == TRUE && input[i] == blank && input[i] != comma) {
 					isBlankAfterFirstNum = TRUE;
 				} else if (isFirstNum == TRUE && isBlankAfterFirstNum == TRUE && isComma == FALSE && input[i] != blank && input[i] != comma) {

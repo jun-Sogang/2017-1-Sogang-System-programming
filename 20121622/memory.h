@@ -14,3 +14,5 @@ void printASCII();  //ASCII print
 void printAll();  //Run Three of print function
 void printBlank();  //Print blank
 void printSemicolon();  //Print Semicolon
+void edit(int address, unsigned char value, unsigned char memory[]);
+void fill(int start, int end, unsigned char value, unsigned char memory[]);

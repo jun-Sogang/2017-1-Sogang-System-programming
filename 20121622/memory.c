@@ -115,3 +115,12 @@ void printASCII(int addressStart, unsigned char memory[]) {
     }
   }
 }
+
+void edit(int address, unsigned char value, unsigned char memory[]) {
+  memory[address] = value;
+}
+void fill(int start, int end, unsigned char value, unsigned char memory[]) {
+  for (int i = start; i <= end; i += 1) {
+    memory[i] = value;
+  }
+}

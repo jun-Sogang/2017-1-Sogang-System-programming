@@ -1,11 +1,11 @@
 #include "header.h"
-#include "linkedlist.h"
+#include "datastructures.h"
 #include "memory.h"
 
 unsigned char *memory;  //Memory
 int dumpAddress = 0;
 
-
+NODE *hashTable[hashSize];
 
 int main() {
 	linkedList *history = (linkedList *)malloc(sizeof(linkedList));
@@ -15,6 +15,8 @@ int main() {
 
 	memory = (unsigned char*)calloc(maxSize, sizeof(unsigned char));
 	dumpAddress = 0;
+
+	makeHashTable(hashTable);
 
 	while (1) {
 		char input[100];
@@ -141,7 +143,20 @@ int main() {
 				fill(startInt, endInt, (unsigned char)valueInt, memory);
 				insertNode(history, input);
 			}
+		} else if(!strcmp(input, "reset")) {
+			fill(0, maxSize, 0, memory);
+		} else if(!strcmp(input, "opcodelist")) {
+			opcodelist(hashTable);
+			insertNode(history, input);
+		} else if(!strncmp(input, "opcode ", 7)) {
+			char mnemonic[10];
+			int inputLen = strlen(input);
+			for (int i = 7; i < inputLen; i += 1) {
+				mnemonic[i - 7] = input[i];
+			}
 
+			mnemonicFunc(hashTable, mnemonic);
+			insertNode(history, input);
 		} else if (selector(input)) {
 			insertNode(history, input);
 		} else {

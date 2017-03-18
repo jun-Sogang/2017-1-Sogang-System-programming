@@ -1,4 +1,4 @@
-OBJECTS = 20121622.o function.o linkedlist.o dump.o
+OBJECTS = 20121622.o function.o linkedlist.o
 cc=gcc
 20121622.out: $(OBJECTS)
 		$(cc) -o 20121622.out $(OBJECTS)
@@ -12,8 +12,6 @@ function.o: header.h function.c
 linkedlist.o: linkedlist.h linkedlist.c
 		$(cc) -c linkedlist.c
 
-dump.o: dump.h dump.c
-		$(cc) -c dump.c
 
 clean:
 	rm -f $(OBJECTS)

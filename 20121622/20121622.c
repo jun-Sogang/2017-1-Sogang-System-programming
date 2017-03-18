@@ -1,6 +1,6 @@
 #include "header.h"
 #include "linkedlist.h"
-#include "dump.h"
+#include "memory.h"
 
 unsigned char *memory;  //Memory
 int dumpAddress = 0;

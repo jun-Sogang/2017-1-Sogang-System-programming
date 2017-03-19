@@ -1,14 +1,15 @@
 #include "datastructures.h"
 
 void insertNode(linkedList *body, char command[]) {
-	NODE *newNode = getNode();
+	NODE *newNode = getNode();		//newNode
 
-	newNode->num = body->count;
-	strcpy(newNode->command, command);	// newNode data insert
+	// newNode data insert
 	body->count += 1;
+	newNode->num = body->count;
+	strcpy(newNode->command, command);
 
 	if (body->head == NULL && body->tail == NULL) {
-		body->head = body->tail = newNode;
+		body->head = body->tail = newNode;		//if insert firstNode
 	} else {
 		body->tail->next = newNode;
 		body->tail = newNode;
@@ -17,7 +18,7 @@ void insertNode(linkedList *body, char command[]) {
 
 NODE *getNode() {
 	NODE *node = (NODE*)malloc(sizeof(NODE));
-
+	//node reset
 	node->num = 0;
 	node->next = NULL;
 	strcpy(node->command, "undefined");
@@ -27,11 +28,11 @@ NODE *getNode() {
 
 void printNodes(linkedList *body) {
 	NODE *temp = body->head;
-	while (temp != NULL) {
+	while (temp != NULL) {		//check temp == null
 		printf("\t%d\t", temp->num);
 		printf("%s\n", temp->command);
 		temp = temp->next;
-	}
+	}		//print all nodes
 }
 
 void makeHashTable(NODE *hashTable[]) {
@@ -40,44 +41,47 @@ void makeHashTable(NODE *hashTable[]) {
 	char opcodeName[10];
 	char formats[10];
 
+	//File open check
 	if ((fp = fopen("opcode.txt", "r")) == NULL) {
-		printf("opcode.txt 파일을 열지 못했습니다.\n");
+		printf("Can't open [opcode.txt] FILE.\n");
 		return ;
 	}
 
+	//memory allocation to hashTable
 	for (int i = 0; i < hashSize; i += 1) {
 		hashTable[i] = getNode();
-		hashTable[i]->num = -1;
+		hashTable[i]->num = -1;		//if no data, hashTable->num == -1
 	}
 
 	while(fscanf(fp, "%s %s %s", opcodeNumString, opcodeName, formats) != EOF) {
-		int key = getIndexBelowMaxForKey(opcodeName, hashSize);
+		int key = getIndexBelowMaxForKey(opcodeName, hashSize); // get hashKey
 		int opcodeNum;
 
-		sscanf(opcodeNumString, "%X", &opcodeNum);
-		if (hashTable[key]->num == -1) {
+		sscanf(opcodeNumString, "%X", &opcodeNum);	//string to hex
+		if (hashTable[key]->num == -1) {		//if no data
 			hashTable[key]->num = opcodeNum;
-			strcpy(hashTable[key]->command, opcodeName);
+			strcpy(hashTable[key]->command, opcodeName);		// insert data
 		} else {
 			NODE *last = hashTable[key];
-			while (last->next != NULL) {
+			while (last->next != NULL) {		//find last data at hashTable
 				last = last->next;
 			}
+			//insert data
 			last->next = getNode();
 			last->next->num = opcodeNum;
 			strcpy(last->next->command, opcodeName);
 		}
 	}
-	fclose(fp);
+	fclose(fp);	//close file
 }
 
-void opcodelist(NODE *hashTable[]) {
+void opcodelist(NODE *hashTable[]) {	//print hashTable
 	for (int i = 0; i < hashSize; i += 1) {
 		NODE *data = hashTable[i];
 		printf("%d : ",i);
-		while (data != NULL && data->num != -1) {
-			printf("[%s, %X]", data->command, data->num);
-			if (data->next != NULL) {
+		while (data != NULL && data->num != -1) { //if isData
+			printf("[%s, %X]", data->command, data->num);	//print data
+			if (data->next != NULL) {	//if hasNext data
 				printf(" -> ");
 			}
 			data = data->next;
@@ -86,17 +90,25 @@ void opcodelist(NODE *hashTable[]) {
 	}
 }
 
-void mnemonicFunc(NODE *hashTable[], char opcode[]) {
+int mnemonicFunc(NODE *hashTable[], char opcode[]) {
 	NODE *data = hashTable[getIndexBelowMaxForKey(opcode, hashSize)];
-	while (strcmp(data->command, opcode)) {
+	while (data != NULL) {	//find data
+		if (!strcmp(data->command, opcode)) break;
 		data = data->next;
 	}
-	printf("opcode is %X\n", data->num);
+	if (data == NULL) {	//if no data
+		printf("Wrong mnemonic!!\n");
+		return 0;
+	} else {	//if isData
+		printf("opcode is %X\n", data->num);
+		return 1;
+	}
 }
 
 int getIndexBelowMaxForKey(char str[], int max) {
 	int hash = 0;
 	int strLen = strlen(str);
+	//make hash
 	for (int i = 0; i < strLen; i += 1) {
 		hash = (hash << 5) + hash + str[i];
 		hash = hash & hash;

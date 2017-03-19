@@ -22,4 +22,4 @@ void printNodes(linkedList *body);
 int getIndexBelowMaxForKey(char str[], int max);
 void makeHashTable();
 void opcodelist();
-void mnemonicFunc();
+int mnemonicFunc();

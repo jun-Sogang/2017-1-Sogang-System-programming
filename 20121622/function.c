@@ -7,15 +7,15 @@ bool dir();
 void quit();
 
 void sicsim() {
-	printf("%s> ", "sicsim");
+	printf("%s> ", "sicsim");		//print sicsim
 }
 bool selector(char input[]) {
-	if (!strcmp(input, "help") || !strcmp(input, "h")) {
+	if (!strcmp(input, "help") || !strcmp(input, "h")) {		//isHelp?
 		return help();
-	} else if (!strcmp(input, "dir") || !strcmp(input, "d")) {
+	} else if (!strcmp(input, "dir") || !strcmp(input, "d")) {	//isDir?
 		return dir();
 	} else {
-		return FALSE;
+		return FALSE;		//wrong command
 	}
 }
 bool help() {
@@ -37,31 +37,32 @@ bool dir() {
 	struct dirent *direntp;
 	int count = 0;
 	dir = opendir(".");
-	
+
 	while ((direntp = readdir(dir)) != NULL) {
 		char fileName[256];
 		int returnStat;
 		struct stat fileInfo;
 		mode_t fileMode;
-		
+
 		strcpy(fileName, direntp->d_name);
 		if ((returnStat = stat(fileName, &fileInfo)) ==-1) {
 			perror("Error : ");
 			exit(0);
-		}
-		fileMode = fileInfo.st_mode;
-		printf("%s", fileName);
+		}		//Error check
+		fileMode = fileInfo.st_mode;		//check fileMode
+		printf("%s", fileName);		//print fileName
 		if (S_ISDIR(fileMode)) {
-			printf("/");
+			printf("/");		//isDir?
 		} else if (fileMode & S_IXUSR || fileMode & S_IXGRP || fileMode & S_IXOTH) {
-			printf("*");
+			printf("*");		//isExecFile?
 		}
 		printf("\t");
 		if ((++count)%5 == 0) {
-			puts("");
+			puts("");				// 5 files for one line
 		}
 	}
-	closedir(dir);
+	closedir(dir);			//close dir
+	puts("");
 	puts("");
 	return TRUE;
 }
@@ -75,5 +76,4 @@ void quit() {
 	printf("   (    o    =/3		\n");
 	printf("     ||  ||\n");
 	exit(0);
-}
-
+}		//quit

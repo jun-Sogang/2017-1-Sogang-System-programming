@@ -8,157 +8,215 @@ int dumpAddress = 0;
 NODE *hashTable[hashSize];
 
 int main() {
+	// make linkedList for history
 	linkedList *history = (linkedList *)malloc(sizeof(linkedList));
 	history->head = NULL;
 	history->tail = NULL;
 	history->count = 0;
 
+	// memory allocation for dump
 	memory = (unsigned char*)calloc(maxSize, sizeof(unsigned char));
 	dumpAddress = 0;
 
+	//makeHashTable
 	makeHashTable(hashTable);
 
 	while (1) {
-		char input[100];
+		char input[100];	//command
+		char copiedInput[100];
+		int charLocation = 0;
+		int lengthOfInput = 0;
+		int lengthOfcopiedInput = 0;
+		bool isChar = FALSE;
 		sicsim();
 		fgets(input, 100, stdin);			// Get one line
-		input[strlen(input)-1] = '\0';	// Remove \n to \0
-		if (!strcmp(input, "quit") || !strcmp(input, "q")) {
+		lengthOfInput = strlen(input);
+		input[lengthOfInput - 1] = '\0';	// Remove \n to \0
+
+		for (int i = 0; i < lengthOfInput; i += 1) {
+			if (input[i] != ' ' && isChar == FALSE) {
+				isChar = TRUE;
+				charLocation = i;
+			}
+			if (isChar == TRUE) {
+				copiedInput[i - charLocation] = input[i];
+			}
+		}
+		lengthOfcopiedInput = strlen(copiedInput);
+		for (int i = lengthOfcopiedInput - 1; i >= 0; i -= 1) {
+			if (copiedInput[i] == ' ') {
+				copiedInput[i] = '\0';
+			} else {
+				break;
+			}
+		}
+		isChar = FALSE;
+		if (!strcmp(copiedInput, "quit") || !strcmp(copiedInput, "q")) {
 			quit();
-		} else if (!strcmp(input, "history") || !strcmp(input, "hi")) {
-			insertNode(history, input);
+		} else if (!strcmp(copiedInput, "history") || !strcmp(copiedInput, "hi")) {
+			insertNode(history, input);	// print history
 			printNodes(history);
-		} else if (!strcmp(input, "dump") || !strcmp(input, "du")) {
-			dump(&dumpAddress, maxSize, memory);
+		} else if (!strcmp(copiedInput, "dump") || !strcmp(copiedInput, "du")) {
+			dump(&dumpAddress, maxSize, memory);	// show 10 line about dump memory
 			insertNode(history, input);
-		} else if (!strncmp(input, "dump ", 5) || !strncmp(input, "du ", 3)) {
-			int inputLength = strlen(input);
-			char firstNumber[100];
-			char secondNumber[100];
-			bool isEnd = FALSE;
-			bool isFirstNum = FALSE;
-			bool isBlankAfterFirstNum = FALSE;
-			bool isDump = TRUE;
-			bool isComma = FALSE;
-			char blank = ' ';
-			char comma = ',';
-			int count = 0;
-			int commandLength = !strncmp(input, "dump ", 5) ? 5 : 3;
+			if (dumpAddress >= maxSize) dumpAddress = 0; // dumpAddress reset
+		} else if (!strncmp(copiedInput, "dump ", 5) || !strncmp(copiedInput, "du ", 3)) {
+			char inputCopy[100];			//copy input
+			strcpy(inputCopy, copiedInput);
+		  char *ptr = strtok(inputCopy, " ");			//command
+		  char *start = strtok(NULL, ",");		//start
+		  char *end = strtok(NULL, ",");		//value
+		  ptr = strtok(NULL, " ");						//any input after value
 
-			for (int i = commandLength; i < inputLength; i += 1) {
-				if (isFirstNum == TRUE && input[i] == blank && input[i] != comma) {
-					isBlankAfterFirstNum = TRUE;
-				} else if (isFirstNum == TRUE && isBlankAfterFirstNum == TRUE && isComma == FALSE && input[i] != blank && input[i] != comma) {
-					printf("ERROR\n");
-					printf("ex) dump 4, 37\n");
-					isDump = FALSE;
-					firstNumber[0] = '\0';
-					secondNumber[0] = '\0';
-					break;
+		  if (ptr != NULL || start == NULL) {
+		    printf("ERROR!!\n");						//if it's not right form. throw ERROR
+		    printf("ex) (1) dump 4\n");
+				printf("    (2) dump 4, 37\n");
+		  } else {
+				char trash[10];
+				char comma = ',';
+				int commaCount = 0;		//check number of comma
+				int inputLength = strlen(copiedInput);
+				int startInt;
+				sscanf(start, "%X %s", &startInt, trash); //char -> hex
+				int endInt = 0;
+				if (end != NULL) {
+					sscanf(end, "%X %s", &endInt, trash); //char -> hex
 				}
-				else if (input[i] != blank && input[i] != comma && isEnd == FALSE) {
-					firstNumber[count++] = input[i];
-					isFirstNum = TRUE;
-				} else if(input[i] == comma) {
-					isEnd = TRUE;
-					isComma = TRUE;
-					firstNumber[count] = '\0';
-					count = 0;
-				} else if(input[i] != blank) {
-					secondNumber[count++] = input[i];
+				for (int i = 0; i < inputLength; i += 1) {	//check number of comma
+					if (copiedInput[i] == comma) commaCount += 1;
 				}
+				if (strcmp(trash, "") || !(commaCount == 1 || commaCount == 0)) {	//number of comma == 2?
+					printf("ERROR!!\n");						//if it's not right form. throw ERROR
+			    printf("ex) (1) dump 4\n");
+					printf("    (2) dump 4, 37\n");
+					trash[0] = '\0';
+				} else {	// Done
+		      if (end == NULL) {
+						if (startInt < 0) {
+				      printf("ERROR | memory address : %X ~ %X\n", 0, maxSize - 1);
+				    } else {
+							dump(&startInt, maxSize, memory);
+							insertNode(history, input);
+						}
+					} else {
+						if (startInt >= maxSize) {
+					    printf("ERROR | Start : %d out of maxSize : %d\n", startInt, maxSize);
+					  }
+					  else if (startInt > endInt) {
+					    printf("ERROR | Start is lager than end.\nStart : %d  End : %d\n", startInt, endInt);
+					  } else if (endInt >= maxSize) {
+					    printf("ERROR |End : %d out of maxSize : %d\n", endInt, maxSize);
+					  } else {
+							dumpRange(&startInt, endInt, memory);
+							insertNode(history, input);
+						}
+					}
+		    }
+				commaCount = 0;		//reset commaCount
 			}
-			if (isEnd == FALSE && isDump == TRUE) {
-				firstNumber[count] = '\0';
-				int start = atoi(firstNumber);
-				dump(&start, maxSize, memory);
-			} else if (isDump == TRUE && isEnd == TRUE){
-				secondNumber[count] = '\0';
-				int start = atoi(firstNumber);
-				int end = atoi(secondNumber);
-				dumpRange(&start, end, memory);
-				insertNode(history, input);
-			}
-		} else if (!strncmp(input, "edit ", 5) || !strncmp(input, "e ", 2)) {
-			int inputLength = strlen(input);
-			char address[100];
-			char value[100];
-			bool isEnd = FALSE;
-			bool isFirstNum = FALSE;
-			bool isBlankAfterFirstNum = FALSE;
-			bool isEdit = TRUE;
-			bool isComma = FALSE;
-			char blank = ' ';
-			char comma = ',';
-			int count = 0;
-			int commandLength = !strncmp(input, "edit ", 5) ? 5 : 2;
+		} else if (!strncmp(copiedInput, "edit ", 5) || !strncmp(copiedInput, "e ", 2)) {
+			char inputCopy[100];			//copy input
+			strcpy(inputCopy, copiedInput);
+		  char *ptr = strtok(inputCopy, " ");			//command
+		  char *start = strtok(NULL, ",");		//start
+		  char *value = strtok(NULL, ",");		//value
+		  ptr = strtok(NULL, " ");						//any input after value
 
-			for (int i = commandLength; i < inputLength; i += 1) {
-				if (isFirstNum == TRUE && input[i] == blank && input[i] != comma) {
-					isBlankAfterFirstNum = TRUE;
-				} else if (isFirstNum == TRUE && isBlankAfterFirstNum == TRUE && isComma == FALSE && input[i] != blank && input[i] != comma) {
-					printf("ERROR!!\n");
-					printf("ex) edit 4, 37\n");
-					isEdit = FALSE;
-					address[0] = '\0';
-					value[0] = '\0';
-					break;
-				}
-				else if (input[i] != blank && input[i] != comma && isEnd == FALSE) {
-					address[count++] = input[i];
-					isFirstNum = TRUE;
-				} else if(input[i] == comma) {
-					isEnd = TRUE;
-					isComma = TRUE;
-					address[count] = '\0';
-					count = 0;
-				} else if(input[i] != blank) {
-					value[count++] = input[i];
-				}
-			}
-			if (isEdit == TRUE && isEnd == TRUE){
-				value[count] = '\0';
-				int start = atoi(address);
-				int end = atoi(value);
-				edit(start, (unsigned char)end, memory);
-				insertNode(history, input);
-			}
-		} else if (!strncmp(input, "fill ", 5) || !strncmp(input, "f ", 2)) {
+		  if (ptr != NULL || start == NULL || value == NULL) {
+		    printf("ERROR!!\n");						//if it's not right form. throw ERROR
+		    printf("ex) edit 4, 6D\n");
+		  } else {
+				char trash[10];
+				char comma = ',';
+				int commaCount = 0;		//check number of comma
+				int inputLength = strlen(copiedInput);
+				int startInt;
+				sscanf(start, "%X %s", &startInt, trash); //char -> hex
+				int valueInt;
+				sscanf(value, "%X %s", &valueInt, trash); //char -> hex
 
-			char *ptr = strtok(input, ", ");
-			char *start = strtok(NULL, ", ");
-			char *end = strtok(NULL, ", ");
-			char *value = strtok(NULL, ", ");
-			ptr = strtok(NULL, ", ");
+				for (int i = 0; i < inputLength; i += 1) {	//check number of comma
+					if (copiedInput[i] == comma) commaCount += 1;
+				}
+				if (strcmp(trash, "") || commaCount != 1) {	//number of comma == 2?
+					printf("ERROR!!\n");						//if it's not right form. throw ERROR
+					printf("ex) edit 4, 6D\n");
+					trash[0] = '\0';
+				} else if (startInt < 0 || startInt >= maxSize) {	//Range check about startInt
+		      printf("ERROR | memory address : 0 ~ %X\n", maxSize-1);
+		    } else if (valueInt > 255 || valueInt < 0) {	// over value
+		      printf("ERROR | value : %02X ~ %02X\n", 0, 255);
+		    } else {	// Done
+		      edit(startInt, (unsigned char)valueInt, memory);
+		      insertNode(history, input);
+		    }
+				commaCount = 0;		//reset commaCount
+			}
+		} else if (!strncmp(copiedInput, "fill ", 5) || !strncmp(copiedInput, "f ", 2)) {
+			char inputCopy[100];			//copy input
+			strcpy(inputCopy, copiedInput);
+			char *ptr = strtok(inputCopy, " ");			//command
+			char *start = strtok(NULL, ",");		//start
+			char *end = strtok(NULL, ",");			//end
+			char *value = strtok(NULL, ",");		//value
+			ptr = strtok(NULL, " ");						//any input after value
 
-			if (ptr != NULL) {
-				printf("ERROR!!\n");
+			if (ptr != NULL || start == NULL || end == NULL || value == NULL) {
+				printf("ERROR!!\n");						//if it's not right form. throw ERROR
 				printf("ex) fill 4, 20, 20\n");
 			} else {
-				int startInt = atoi(start);
-				int endInt = atoi(end);
-				int valueInt = atoi(value);
+				char trash[10];
+				char comma = ',';
+				int commaCount = 0;		//check number of comma
+				int inputLength = strlen(copiedInput);
+				int startInt;
+				sscanf(start, "%X %s", &startInt, trash); //char -> hex
+				int endInt;
+				sscanf(end, "%X %s", &endInt, trash); //char -> hex
+				int valueInt;
+				sscanf(value, "%X %s", &valueInt, trash); //char -> hex
 
-				printf("start : %s\nend : %s\nvalue : %s\n", start,end,value);
-				fill(startInt, endInt, (unsigned char)valueInt, memory);
+				for (int i = 0; i < inputLength; i += 1) {	//check number of comma
+					if (copiedInput[i] == comma) commaCount += 1;
+				}
+				if (strcmp(trash, "") || commaCount != 2) {
+					printf("ERROR!!\n");						//if it's not right form. throw ERROR
+					printf("ex) fill 4, 20, 20\n");
+					trash[0] = '\0';
+				} else if (startInt > endInt) {	//start > end
+					printf("ERROR | start : %X is lager than end : %X\n", startInt, endInt);
+				} else if (endInt >= maxSize || startInt >= maxSize || startInt < 0 || endInt < 0) { // Over maxSize
+					printf("ERROR | memory address : 0 ~ %X\n",maxSize-1);
+				} else if (valueInt > 255 || valueInt < 0) {	// over value
+					printf("ERROR | value : %02X ~ %02X\n", 0, 255);
+				} else {	// Done
+					fill(startInt, endInt, (unsigned char)valueInt, memory);
+					insertNode(history, input);
+					printf("Fill value : %X from start : %X to end : %X\n", valueInt, startInt, endInt);
+				}
+				commaCount = 0;		//reset commaCount
+			}
+		} else if(!strcmp(copiedInput, "reset")) {
+			fill(0, maxSize - 1, 0, memory);	// fill : start = 0, end = maxSize, value = 0
+			insertNode(history, input);
+		} else if(!strcmp(copiedInput, "opcodelist")) {
+			opcodelist(hashTable);		//print opcodelist
+			insertNode(history, input);
+		} else if(!strncmp(copiedInput, "opcode ", 7)) {
+			char *ptr = strtok(copiedInput, " ");
+			char *mnemonic = strtok(NULL, " ");				// get mnemonic string
+			ptr = strtok(NULL, " ");									// if not right form
+			if (ptr != NULL) {
+				printf("ERROR!!\n");
+				printf("ex) opcode ADD\n");
+			} else if (mnemonicFunc(hashTable, mnemonic) == 1) { // isMnemonic : 1 ? 0
 				insertNode(history, input);
-			}
-		} else if(!strcmp(input, "reset")) {
-			fill(0, maxSize, 0, memory);
-		} else if(!strcmp(input, "opcodelist")) {
-			opcodelist(hashTable);
+			}	//print
+		} else if (selector(copiedInput)) {
 			insertNode(history, input);
-		} else if(!strncmp(input, "opcode ", 7)) {
-			char mnemonic[10];
-			int inputLen = strlen(input);
-			for (int i = 7; i < inputLen; i += 1) {
-				mnemonic[i - 7] = input[i];
-			}
-
-			mnemonicFunc(hashTable, mnemonic);
-			insertNode(history, input);
-		} else if (selector(input)) {
-			insertNode(history, input);
+		} else if (!strcmp(copiedInput, "")) {			//empty input
+			puts("");
 		} else {
 			printf("Wrong command!!\n");
 		}

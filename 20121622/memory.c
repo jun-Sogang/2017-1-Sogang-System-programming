@@ -1,17 +1,5 @@
 #include "memory.h"
 
-void dump(int *start, int end, unsigned char memory[]) {
-  for (int i = 0; i < 10; i += 1) {
-    if (*start < end) {           // Over Memory?
-      printAll(*start, end, memory);      //Print one line
-      *start += 16 - *start % 16;     //Make start to first of next line address
-    } else {                      // End of line
-      printf("End of line\n");
-      break;
-    }
-  }
-}
-
 void dumpRange(int *start, int end, unsigned char memory[]) {
   int first = *start;
   while (1) {
@@ -19,6 +7,7 @@ void dumpRange(int *start, int end, unsigned char memory[]) {
       printAll(*start, end, memory);      //Print one line
       *start += 16 - *start % 16;     //Make start to first of next line address
     } else {
+      if (end >= maxSize) end = maxSize - 1;  // if over the memory, end = maxSize
       printf("From %X to %X print done\n", first, end);
       break;
     }

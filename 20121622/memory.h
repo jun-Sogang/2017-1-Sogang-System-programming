@@ -6,7 +6,6 @@
 
 
 
-void dump(int *start, int end, unsigned char memory[]);  //dump
 void dumpRange();
 void printAddress();  //Memory address print
 void printData(); //Memory print
